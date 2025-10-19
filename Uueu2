@@ -1,0 +1,2364 @@
+--// Services
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+--// Player
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "PayamGUIv2"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+
+--// Main Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 600, 0, 400)
+frame.Position = UDim2.new(0.5, -300, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(45, 55, 90)
+frame.BackgroundTransparency = 0.05
+frame.Visible = true
+frame.Parent = gui
+
+--// UI Design
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 25)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(0, 255, 255)
+
+--// Title Text
+local title = Instance.new("TextLabel")
+title.Text = " Payam GUI v2 "
+title.Size = UDim2.new(1, 0, 0, 60)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Parent = frame
+
+--//  Show/Hide Button
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 60, 0, 35)
+toggleBtn.Position = UDim2.new(0, 20, 0, 20)
+toggleBtn.Text = "Hide"
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 14
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleBtn.BackgroundColor3 = frame.BackgroundColor3
+toggleBtn.Parent = gui
+
+local btnCorner = Instance.new("UICorner", toggleBtn)
+btnCorner.CornerRadius = UDim.new(0, 10)
+
+--//  Sound Function
+local SoundService = game:GetService("SoundService")
+
+local function playClickSound()
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://535716488"
+	sound.Volume = 1
+	sound.PlayOnRemove = true
+	sound.Parent = SoundService
+	sound:Destroy()
+end
+
+--//  Animated Show/Hide
+local TweenService = game:GetService("TweenService")
+
+toggleBtn.MouseButton1Click:Connect(function()
+	playClickSound()
+
+	if frame.Visible then
+		local tween = TweenService:Create(
+			frame,
+			TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{BackgroundTransparency = 1}
+		)
+		tween:Play()
+		tween.Completed:Connect(function()
+			frame.Visible = false
+			frame.BackgroundTransparency = 0
+			toggleBtn.Text = "Show"
+		end)
+	else
+		frame.Visible = true
+		frame.BackgroundTransparency = 1
+		local tween = TweenService:Create(
+			frame,
+			TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{BackgroundTransparency = 0}
+		)
+		tween:Play()
+		toggleBtn.Text = "Hide"
+	end
+end)
+
+--//  ColorGUI Button
+local colorBtn = Instance.new("TextButton")
+colorBtn.Size = UDim2.new(0, 100, 0, 20)
+colorBtn.Position = UDim2.new(0,3,0,99)
+colorBtn.Text = "change color"
+colorBtn.Font = Enum.Font.GothamBold
+colorBtn.TextSize = 16
+colorBtn.TextColor3 = Color3.new(1, 1, 1)
+colorBtn.BackgroundColor3 = Color3.fromRGB(0,150,100)
+colorBtn.Parent = frame
+
+local colorBtnCorner = Instance.new("UICorner", colorBtn)
+colorBtnCorner.CornerRadius = UDim.new(0, 10)
+
+
+
+--//  Infinite Yield Button (   ColorGUI)
+local infiniteYieldBtn = Instance.new("TextButton")
+infiniteYieldBtn.Size = UDim2.new(0, 100, 0, 20)
+infiniteYieldBtn.Position = UDim2.new(0, 3, 0, 125) --   ColorGUI
+infiniteYieldBtn.Text = "Infinite Yield"
+infiniteYieldBtn.Font = Enum.Font.GothamBold
+infiniteYieldBtn.TextSize = 14
+infiniteYieldBtn.TextColor3 = Color3.new(1, 1, 1)
+infiniteYieldBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
+infiniteYieldBtn.Parent = frame
+
+local infiniteYieldCorner = Instance.new("UICorner", infiniteYieldBtn)
+infiniteYieldCorner.CornerRadius = UDim.new(0, 10)
+
+--//  Infinite Yield
+infiniteYieldBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    print("Infinite Yield loaded successfully!")
+end)
+
+--// TP Walk Button
+local tpWalkBtn = Instance.new("TextButton")
+tpWalkBtn.Size = UDim2.new(0, 100, 0, 20)
+tpWalkBtn.Position = UDim2.new(0, 3, 0, 175)
+tpWalkBtn.Text = "TP Walk: OFF"
+tpWalkBtn.Font = Enum.Font.GothamBold
+tpWalkBtn.TextSize = 12
+tpWalkBtn.TextColor3 = Color3.new(1, 1, 1)
+tpWalkBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+tpWalkBtn.Parent = frame
+
+local tpWalkCorner = Instance.new("UICorner", tpWalkBtn)
+tpWalkCorner.CornerRadius = UDim.new(0, 10)
+
+--// TP Walk Variables
+local tpWalkActive = false
+local tpWalkConnection = nil
+local currentTpSpeed = 1
+
+--// Slider Frame
+local tpSliderFrame = Instance.new("Frame")
+tpSliderFrame.Size = UDim2.new(0, 120, 0, 15)
+tpSliderFrame.Position = UDim2.new(0, 110, 0, 175)
+tpSliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+tpSliderFrame.BorderSizePixel = 0
+tpSliderFrame.Visible = false
+tpSliderFrame.Parent = frame
+
+local tpSliderCorner = Instance.new("UICorner", tpSliderFrame)
+tpSliderCorner.CornerRadius = UDim.new(0, 8)
+
+local tpSliderFill = Instance.new("Frame")
+tpSliderFill.Parent = tpSliderFrame
+tpSliderFill.Size = UDim2.new(currentTpSpeed/50, 0, 1, 0)
+tpSliderFill.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+tpSliderFill.BorderSizePixel = 0
+
+local tpSliderFillCorner = Instance.new("UICorner", tpSliderFill)
+tpSliderFillCorner.CornerRadius = UDim.new(0, 8)
+
+local tpSliderButton = Instance.new("TextButton")
+tpSliderButton.Parent = tpSliderFrame
+tpSliderButton.Size = UDim2.new(0, 12, 1, 0)
+tpSliderButton.Position = UDim2.new(currentTpSpeed/50, -6, 0, 0)
+tpSliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tpSliderButton.Text = ""
+tpSliderButton.ZIndex = 2
+
+local tpSliderButtonCorner = Instance.new("UICorner", tpSliderButton)
+tpSliderButtonCorner.CornerRadius = UDim.new(0, 8)
+
+local tpValueLabel = Instance.new("TextLabel")
+tpValueLabel.Parent = tpSliderFrame
+tpValueLabel.Size = UDim2.new(1, 0, 1, 0)
+tpValueLabel.BackgroundTransparency = 1
+tpValueLabel.Text = tostring(currentTpSpeed)
+tpValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+tpValueLabel.TextSize = 10
+tpValueLabel.Font = Enum.Font.GothamBold
+tpValueLabel.ZIndex = 3
+
+--// Sounds
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Parent = tpWalkBtn
+
+local dragSound = Instance.new("Sound")
+dragSound.SoundId = "rbxassetid://103866342467024" -- دەتوانیت Sound ID یەکی تر هەڵبژێریت
+dragSound.Volume = 0.5
+dragSound.Parent = tpSliderButton
+
+--// Set TP Speed
+local function setTpSpeed(value)
+    value = math.clamp(value, 1, 50)
+    currentTpSpeed = value
+    local fillWidth = value / 50
+    tpSliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+    tpSliderButton.Position = UDim2.new(fillWidth, -6, 0, 0)
+    tpValueLabel.Text = tostring(value)
+end
+
+--// Start TP Walk
+local function startTpWalk()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    
+    if tpWalkConnection then
+        tpWalkConnection:Disconnect()
+    end
+    
+    tpWalkConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not tpWalkActive or not character or not rootPart then
+            return
+        end
+        
+        local moveDirection = humanoid.MoveDirection
+        if moveDirection.Magnitude > 0 then
+            local newPosition = rootPart.Position + (moveDirection * currentTpSpeed)
+            rootPart.CFrame = CFrame.new(newPosition) * (rootPart.CFrame - rootPart.CFrame.Position)
+        end
+    end)
+    
+    humanoid.WalkSpeed = 0
+end
+
+--// Slider Drag
+local tpDragging = false
+
+local function handleTpSliderInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        tpDragging = true
+        dragSound:Play()
+        local mouseX = input.Position.X
+        local relativeX = mouseX - tpSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / tpSliderFrame.AbsoluteSize.X) * 49)
+        setTpSpeed(value)
+    end
+end
+
+local function handleTpSliderEnd(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        tpDragging = false
+    end
+end
+
+local function handleTpSliderChange(input)
+    if tpDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+                      input.UserInputType == Enum.UserInputType.Touch) then
+        dragSound:Play()
+        local mouseX = input.Position.X
+        local relativeX = mouseX - tpSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / tpSliderFrame.AbsoluteSize.X) * 49)
+        setTpSpeed(value)
+    end
+end
+
+tpSliderButton.InputBegan:Connect(handleTpSliderInput)
+tpSliderFrame.InputBegan:Connect(handleTpSliderInput)
+game:GetService("UserInputService").InputEnded:Connect(handleTpSliderEnd)
+game:GetService("UserInputService").InputChanged:Connect(handleTpSliderChange)
+
+--// Button ON/OFF
+tpWalkBtn.MouseButton1Click:Connect(function()
+    clickSound:Play()
+    
+    tpWalkActive = not tpWalkActive
+    
+    if tpWalkActive then
+        tpWalkBtn.Text = "TP Walk: ON"
+        tpWalkBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        tpSliderFrame.Visible = true
+        startTpWalk()
+    else
+        tpWalkBtn.Text = "TP Walk: OFF"
+        tpWalkBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        tpSliderFrame.Visible = false
+        
+        if tpWalkConnection then
+            tpWalkConnection:Disconnect()
+            tpWalkConnection = nil
+        end
+        
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
+        end
+    end
+end)
+
+--// FPS Counter Title
+local fpsTitle = Instance.new("TextLabel")
+fpsTitle.Size = UDim2.new(1, 0, 0, 30)
+fpsTitle.Position = UDim2.new(0, 0, 0,367) --   titl 
+fpsTitle.BackgroundTransparency = 1
+fpsTitle.Font = Enum.Font.GothamBold
+fpsTitle.TextSize = 16
+fpsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsTitle.Text = "FPS: Calculating..."
+fpsTitle.Parent = frame
+
+--//  FPS Counter
+local function updateFPS()
+    local runService = game:GetService("RunService")
+    local lastTime = tick()
+    local frameCount = 0
+    
+    runService.Heartbeat:Connect(function()
+        frameCount = frameCount + 1
+        
+        local currentTime = tick()
+        if currentTime - lastTime >= 1 then
+            local fps = math.floor(frameCount / (currentTime - lastTime))
+            frameCount = 0
+            lastTime = currentTime
+            
+            --   FPS
+            fpsTitle.Text = "FPS: " .. fps
+            
+            --     FPS
+            if fps >= 60 then
+                fpsTitle.TextColor3 = Color3.fromRGB(0, 255, 0) --  ( )
+            elseif fps >= 30 then
+                fpsTitle.TextColor3 = Color3.fromRGB(255, 255, 0) --  ()
+            else
+                fpsTitle.TextColor3 = Color3.fromRGB(255, 0, 0) --  ()
+            end
+        end
+    end)
+end
+
+--  FPS Counter
+updateFPS()
+
+--//  Animation R15 Button (   Infinite Yield)
+local animationR15Btn = Instance.new("TextButton")
+animationR15Btn.Size = UDim2.new(0, 100, 0, 20)
+animationR15Btn.Position = UDim2.new(0, 3, 0, 150) --   Infinite Yield
+animationR15Btn.Text = "Animation R15"
+animationR15Btn.Font = Enum.Font.GothamBold
+animationR15Btn.TextSize = 14
+animationR15Btn.TextColor3 = Color3.new(1, 1, 1)
+animationR15Btn.BackgroundColor3 = Color3.fromRGB(0, 150, 100) --   Infinite Yield
+animationR15Btn.Parent = frame
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = animationR15Btn
+
+animationR15Btn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+animationR15Btn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+local animationR15Corner = Instance.new("UICorner", animationR15Btn)
+animationR15Corner.CornerRadius = UDim.new(0, 10)
+
+--//  Animation R15
+animationR15Btn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/echelonvanta/Scripts/refs/heads/main/Animstions%20Hub/animation.lua"))()
+    print("Animation R15 loaded successfully!")
+end)
+
+--//  WalkSpeed Power Button
+local walkSpeedBtn = Instance.new("TextButton")
+walkSpeedBtn.Size = UDim2.new(0, 100, 0, 20)
+walkSpeedBtn.Position = UDim2.new(0, 3, 0, 200) --    TP Walk
+walkSpeedBtn.Text = "SpeedWalk: OFF"
+walkSpeedBtn.Font = Enum.Font.GothamBold
+walkSpeedBtn.TextSize = 12
+walkSpeedBtn.TextColor3 = Color3.new(1, 1, 1)
+walkSpeedBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+walkSpeedBtn.Parent = frame
+
+local walkSpeedCorner = Instance.new("UICorner", walkSpeedBtn)
+walkSpeedCorner.CornerRadius = UDim.new(0, 10)
+
+--// WalkSpeed Variables
+local walkSpeedActive = false
+local currentWalkSpeed = 16 --  
+
+--//  slider  WalkSpeed
+local walkSliderFrame = Instance.new("Frame")
+walkSliderFrame.Size = UDim2.new(0, 120, 0, 15)
+walkSliderFrame.Position = UDim2.new(0, 110, 0, 200)
+walkSliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+walkSliderFrame.BorderSizePixel = 0
+walkSliderFrame.Visible = false
+walkSliderFrame.Parent = frame
+
+local walkSliderCorner = Instance.new("UICorner", walkSliderFrame)
+walkSliderCorner.CornerRadius = UDim.new(0, 8)
+
+local walkSliderFill = Instance.new("Frame")
+walkSliderFill.Parent = walkSliderFrame
+walkSliderFill.Size = UDim2.new(currentWalkSpeed/500, 0, 1, 0)
+walkSliderFill.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+walkSliderFill.BorderSizePixel = 0
+
+local walkSliderFillCorner = Instance.new("UICorner", walkSliderFill)
+walkSliderFillCorner.CornerRadius = UDim.new(0, 8)
+
+local walkSliderButton = Instance.new("TextButton")
+walkSliderButton.Parent = walkSliderFrame
+walkSliderButton.Size = UDim2.new(0, 12, 1, 0)
+walkSliderButton.Position = UDim2.new(currentWalkSpeed/500, -6, 0, 0)
+walkSliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+walkSliderButton.Text = ""
+walkSliderButton.ZIndex = 2
+
+local walkSliderButtonCorner = Instance.new("UICorner", walkSliderButton)
+walkSliderButtonCorner.CornerRadius = UDim.new(0, 8)
+
+local walkValueLabel = Instance.new("TextLabel")
+walkValueLabel.Parent = walkSliderFrame
+walkValueLabel.Size = UDim2.new(1, 0, 1, 0)
+walkValueLabel.BackgroundTransparency = 1
+walkValueLabel.Text = tostring(currentWalkSpeed)
+walkValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+walkValueLabel.TextSize = 10
+walkValueLabel.Font = Enum.Font.GothamBold
+walkValueLabel.ZIndex = 3
+
+--//     WalkSpeed
+local function setWalkSpeed(value)
+    value = math.clamp(value, 1, 500)
+    currentWalkSpeed = value
+    local fillWidth = value / 500
+    walkSliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+    walkSliderButton.Position = UDim2.new(fillWidth, -6, 0, 0)
+    walkValueLabel.Text = tostring(value)
+    
+    --      
+    if walkSpeedActive then
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = value
+            end
+        end
+    end
+end
+
+--//  
+local walkDragging = false
+
+local function handleWalkSliderInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        walkDragging = true
+        local mouseX = input.Position.X
+        local relativeX = mouseX - walkSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / walkSliderFrame.AbsoluteSize.X) * 499)
+        setWalkSpeed(value)
+    end
+end
+
+local function handleWalkSliderEnd(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        walkDragging = false
+    end
+end
+
+local function handleWalkSliderChange(input)
+    if walkDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+                        input.UserInputType == Enum.UserInputType.Touch) then
+        local mouseX = input.Position.X
+        local relativeX = mouseX - walkSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / walkSliderFrame.AbsoluteSize.X) * 499)
+        setWalkSpeed(value)
+    end
+end
+
+walkSliderButton.InputBegan:Connect(handleWalkSliderInput)
+walkSliderFrame.InputBegan:Connect(handleWalkSliderInput)
+
+game:GetService("UserInputService").InputEnded:Connect(handleWalkSliderEnd)
+game:GetService("UserInputService").InputChanged:Connect(handleWalkSliderChange)
+
+--//  ON/OFF
+walkSpeedBtn.MouseButton1Click:Connect(function()
+    walkSpeedActive = not walkSpeedActive
+    
+    if walkSpeedActive then
+        walkSpeedBtn.Text = "SpeedWalk: ON"
+        walkSpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        walkSliderFrame.Visible = true
+        
+        --  
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = currentWalkSpeed
+            end
+        end
+    else
+        walkSpeedBtn.Text = "SpeedWalk: OFF"
+        walkSpeedBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        walkSliderFrame.Visible = false
+        
+        --     
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
+        end
+    end
+end)
+
+--//  JumpPower Button
+local jumpPowerBtn = Instance.new("TextButton")
+jumpPowerBtn.Size = UDim2.new(0, 100, 0, 20)
+jumpPowerBtn.Position = UDim2.new(0, 3, 0, 225) --    SpeedWalk
+jumpPowerBtn.Text = "JumpPower: OFF"
+jumpPowerBtn.Font = Enum.Font.GothamBold
+jumpPowerBtn.TextSize = 12
+jumpPowerBtn.TextColor3 = Color3.new(1, 1, 1)
+jumpPowerBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+jumpPowerBtn.Parent = frame
+
+local jumpPowerCorner = Instance.new("UICorner", jumpPowerBtn)
+jumpPowerCorner.CornerRadius = UDim.new(0, 10)
+
+--// JumpPower Variables
+local jumpPowerActive = false
+local currentJumpPower = 50 --  
+
+--//  slider  JumpPower
+local jumpSliderFrame = Instance.new("Frame")
+jumpSliderFrame.Size = UDim2.new(0, 120, 0, 15)
+jumpSliderFrame.Position = UDim2.new(0, 110, 0, 225)
+jumpSliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+jumpSliderFrame.BorderSizePixel = 0
+jumpSliderFrame.Visible = false
+jumpSliderFrame.Parent = frame
+
+local jumpSliderCorner = Instance.new("UICorner", jumpSliderFrame)
+jumpSliderCorner.CornerRadius = UDim.new(0, 8)
+
+local jumpSliderFill = Instance.new("Frame")
+jumpSliderFill.Parent = jumpSliderFrame
+jumpSliderFill.Size = UDim2.new(currentJumpPower/500, 0, 1, 0)
+jumpSliderFill.BackgroundColor3 = Color3.fromRGB(200, 100, 200)
+jumpSliderFill.BorderSizePixel = 0
+
+local jumpSliderFillCorner = Instance.new("UICorner", jumpSliderFill)
+jumpSliderFillCorner.CornerRadius = UDim.new(0, 8)
+
+local jumpSliderButton = Instance.new("TextButton")
+jumpSliderButton.Parent = jumpSliderFrame
+jumpSliderButton.Size = UDim2.new(0, 12, 1, 0)
+jumpSliderButton.Position = UDim2.new(currentJumpPower/500, -6, 0, 0)
+jumpSliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+jumpSliderButton.Text = ""
+jumpSliderButton.ZIndex = 2
+
+local jumpSliderButtonCorner = Instance.new("UICorner", jumpSliderButton)
+jumpSliderButtonCorner.CornerRadius = UDim.new(0, 8)
+
+local jumpValueLabel = Instance.new("TextLabel")
+jumpValueLabel.Parent = jumpSliderFrame
+jumpValueLabel.Size = UDim2.new(1, 0, 1, 0)
+jumpValueLabel.BackgroundTransparency = 1
+jumpValueLabel.Text = tostring(currentJumpPower)
+jumpValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+jumpValueLabel.TextSize = 10
+jumpValueLabel.Font = Enum.Font.GothamBold
+jumpValueLabel.ZIndex = 3
+
+--//    JumpPower
+local function setJumpPower(value)
+    value = math.clamp(value, 1, 500)
+    currentJumpPower = value
+    local fillWidth = value / 500
+    jumpSliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+    jumpSliderButton.Position = UDim2.new(fillWidth, -6, 0, 0)
+    jumpValueLabel.Text = tostring(value)
+    
+    --  JumpPower    
+    if jumpPowerActive then
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = value
+            end
+        end
+    end
+end
+
+--//  
+local jumpDragging = false
+
+local function handleJumpSliderInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        jumpDragging = true
+        local mouseX = input.Position.X
+        local relativeX = mouseX - jumpSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / jumpSliderFrame.AbsoluteSize.X) * 499)
+        setJumpPower(value)
+    end
+end
+
+local function handleJumpSliderEnd(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        jumpDragging = false
+    end
+end
+
+local function handleJumpSliderChange(input)
+    if jumpDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+                        input.UserInputType == Enum.UserInputType.Touch) then
+        local mouseX = input.Position.X
+        local relativeX = mouseX - jumpSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / jumpSliderFrame.AbsoluteSize.X) * 499)
+        setJumpPower(value)
+    end
+end
+
+jumpSliderButton.InputBegan:Connect(handleJumpSliderInput)
+jumpSliderFrame.InputBegan:Connect(handleJumpSliderInput)
+
+game:GetService("UserInputService").InputEnded:Connect(handleJumpSliderEnd)
+game:GetService("UserInputService").InputChanged:Connect(handleJumpSliderChange)
+
+--//  ON/OFF
+jumpPowerBtn.MouseButton1Click:Connect(function()
+    jumpPowerActive = not jumpPowerActive
+    
+    if jumpPowerActive then
+        jumpPowerBtn.Text = "JumpPower: ON"
+        jumpPowerBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        jumpSliderFrame.Visible = true
+        
+        --  JumpPower
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = currentJumpPower
+            end
+        end
+    else
+        jumpPowerBtn.Text = "JumpPower: OFF"
+        jumpPowerBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        jumpSliderFrame.Visible = false
+        
+        --  JumpPower   
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = 50
+            end
+        end
+    end
+end)
+
+--//  Spin Player Button
+local spinPlayerBtn = Instance.new("TextButton")
+spinPlayerBtn.Size = UDim2.new(0, 100, 0, 20)
+spinPlayerBtn.Position = UDim2.new(0, 3, 0, 250) --    JumpPower
+spinPlayerBtn.Text = "Spin Player: OFF"
+spinPlayerBtn.Font = Enum.Font.GothamBold
+spinPlayerBtn.TextSize = 12
+spinPlayerBtn.TextColor3 = Color3.new(1, 1, 1)
+spinPlayerBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+spinPlayerBtn.Parent = frame
+
+local spinPlayerCorner = Instance.new("UICorner", spinPlayerBtn)
+spinPlayerCorner.CornerRadius = UDim.new(0, 10)
+
+--// Spin Player Variables
+local spinPlayerActive = false
+local currentSpinSpeed = 50 --  
+local spinConnection = nil
+
+--//  slider  Spin Speed
+local spinSliderFrame = Instance.new("Frame")
+spinSliderFrame.Size = UDim2.new(0, 120, 0, 15)
+spinSliderFrame.Position = UDim2.new(0, 110, 0, 250)
+spinSliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+spinSliderFrame.BorderSizePixel = 0
+spinSliderFrame.Visible = false
+spinSliderFrame.Parent = frame
+
+local spinSliderCorner = Instance.new("UICorner", spinSliderFrame)
+spinSliderCorner.CornerRadius = UDim.new(0, 8)
+
+local spinSliderFill = Instance.new("Frame")
+spinSliderFill.Parent = spinSliderFrame
+spinSliderFill.Size = UDim2.new(currentSpinSpeed/500, 0, 1, 0)
+spinSliderFill.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
+spinSliderFill.BorderSizePixel = 0
+
+local spinSliderFillCorner = Instance.new("UICorner", spinSliderFill)
+spinSliderFillCorner.CornerRadius = UDim.new(0, 8)
+
+local spinSliderButton = Instance.new("TextButton")
+spinSliderButton.Parent = spinSliderFrame
+spinSliderButton.Size = UDim2.new(0, 12, 1, 0)
+spinSliderButton.Position = UDim2.new(currentSpinSpeed/500, -6, 0, 0)
+spinSliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+spinSliderButton.Text = ""
+spinSliderButton.ZIndex = 2
+
+local spinSliderButtonCorner = Instance.new("UICorner", spinSliderButton)
+spinSliderButtonCorner.CornerRadius = UDim.new(0, 8)
+
+local spinValueLabel = Instance.new("TextLabel")
+spinValueLabel.Parent = spinSliderFrame
+spinValueLabel.Size = UDim2.new(1, 0, 1, 0)
+spinValueLabel.BackgroundTransparency = 1
+spinValueLabel.Text = tostring(currentSpinSpeed)
+spinValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+spinValueLabel.TextSize = 10
+spinValueLabel.Font = Enum.Font.GothamBold
+spinValueLabel.ZIndex = 3
+
+--//     
+local function setSpinSpeed(value)
+    value = math.clamp(value, 1, 500)
+    currentSpinSpeed = value
+    local fillWidth = value / 500
+    spinSliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+    spinSliderButton.Position = UDim2.new(fillWidth, -6, 0, 0)
+    spinValueLabel.Text = tostring(value)
+end
+
+--//   
+local function startSpinning()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    
+    if spinConnection then
+        spinConnection:Disconnect()
+    end
+    
+    spinConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not spinPlayerActive or not character or not rootPart then
+            return
+        end
+        
+        --  
+        local currentCFrame = rootPart.CFrame
+        local rotation = CFrame.Angles(0, math.rad(currentSpinSpeed * 0.1), 0)
+        rootPart.CFrame = currentCFrame * rotation
+    end)
+end
+
+--//  
+local spinDragging = false
+
+local function handleSpinSliderInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        spinDragging = true
+        local mouseX = input.Position.X
+        local relativeX = mouseX - spinSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / spinSliderFrame.AbsoluteSize.X) * 499)
+        setSpinSpeed(value)
+    end
+end
+
+local function handleSpinSliderEnd(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        spinDragging = false
+    end
+end
+
+local function handleSpinSliderChange(input)
+    if spinDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+                        input.UserInputType == Enum.UserInputType.Touch) then
+        local mouseX = input.Position.X
+        local relativeX = mouseX - spinSliderFrame.AbsolutePosition.X
+        local value = math.floor(1 + (relativeX / spinSliderFrame.AbsoluteSize.X) * 499)
+        setSpinSpeed(value)
+    end
+end
+
+spinSliderButton.InputBegan:Connect(handleSpinSliderInput)
+spinSliderFrame.InputBegan:Connect(handleSpinSliderInput)
+
+game:GetService("UserInputService").InputEnded:Connect(handleSpinSliderEnd)
+game:GetService("UserInputService").InputChanged:Connect(handleSpinSliderChange)
+
+--//  ON/OFF
+spinPlayerBtn.MouseButton1Click:Connect(function()
+    spinPlayerActive = not spinPlayerActive
+    
+    if spinPlayerActive then
+        spinPlayerBtn.Text = "Spin Player: ON"
+        spinPlayerBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        spinSliderFrame.Visible = true
+        startSpinning()
+    else
+        spinPlayerBtn.Text = "Spin Player: OFF"
+        spinPlayerBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        spinSliderFrame.Visible = false
+        
+        if spinConnection then
+            spinConnection:Disconnect()
+            spinConnection = nil
+        end
+    end
+end)
+
+--//  Show/Hide Main2 Button
+local showMain2Btn = Instance.new("TextButton")
+showMain2Btn.Size = UDim2.new(0, 100, 0, 20)
+showMain2Btn.Position = UDim2.new(0, 3, 0, 275) --    Spin Player
+showMain2Btn.Text = "Show Main2"
+showMain2Btn.Font = Enum.Font.GothamBold
+showMain2Btn.TextSize = 12
+showMain2Btn.TextColor3 = Color3.new(1, 1, 1)
+showMain2Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+showMain2Btn.Parent = frame
+
+local showMain2Corner = Instance.new("UICorner", showMain2Btn)
+showMain2Corner.CornerRadius = UDim.new(0, 10)
+
+--//    
+local SoundService = game:GetService("SoundService")
+
+local function playClickSound()
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://535716488"
+	sound.Volume = 1
+	sound.PlayOnRemove = true
+	sound.Parent = SoundService
+	sound:Destroy() --   
+end
+
+--//  Show / Hide Main2 Action
+local TweenService = game:GetService("TweenService")
+
+showMain2Btn.MouseButton1Click:Connect(function()
+	playClickSound() --   
+
+	if main2Frame.Visible then
+		-- Hide Main2  
+		local tween = TweenService:Create(
+			main2Frame,
+			TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{Position = UDim2.new(main2Frame.Position.X.Scale, main2Frame.Position.X.Offset, 1.2, 0)} -- slide down
+		)
+		tween:Play()
+		tween.Completed:Connect(function()
+			main2Frame.Visible = false
+			main2Frame.Position = UDim2.new(main2Frame.Position.X.Scale, main2Frame.Position.X.Offset, 0.5, main2Frame.Position.Y.Offset)
+			showMain2Btn.Text = "Show Main2"
+		end)
+	else
+		-- Show Main2  
+		main2Frame.Visible = true
+		main2Frame.Position = UDim2.new(main2Frame.Position.X.Scale, main2Frame.Position.X.Offset, 1.2, 0)
+		local tween = TweenService:Create(
+			main2Frame,
+			TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{Position = UDim2.new(main2Frame.Position.X.Scale, main2Frame.Position.X.Offset, 0.5, main2Frame.Position.Y.Offset)} -- slide up
+		)
+		tween:Play()
+		showMain2Btn.Text = "Hide Main2"
+	end
+end)
+
+--// Main2 GUI Frame ( )
+local main2Frame = Instance.new("Frame")
+main2Frame.Size = UDim2.new(0, 350, 0, 300) --  
+main2Frame.Position = UDim2.new(0.5, -175, 0.5, -150) --   
+main2Frame.BackgroundColor3 = Color3.fromRGB(40, 50, 80)
+main2Frame.BackgroundTransparency = 0.05
+main2Frame.Visible = false
+main2Frame.Active = true --   
+main2Frame.Draggable = true --   
+main2Frame.Parent = gui
+
+local main2Corner = Instance.new("UICorner", main2Frame)
+main2Corner.CornerRadius = UDim.new(0, 15)
+local main2Stroke = Instance.new("UIStroke", main2Frame)
+main2Stroke.Thickness = 2
+main2Stroke.Color = Color3.fromRGB(0, 255, 255)
+
+--// Main2 Title
+local main2Title = Instance.new("TextLabel")
+main2Title.Text = " Main2 "
+main2Title.Size = UDim2.new(1, 0, 0, 40)
+main2Title.BackgroundTransparency = 1
+main2Title.Font = Enum.Font.GothamBold
+main2Title.TextSize = 18
+main2Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+main2Title.Parent = main2Frame
+
+--// Scrolling Frame for Main2 ( )
+local main2Scroll = Instance.new("ScrollingFrame")
+main2Scroll.Size = UDim2.new(0.9, 0, 0, 200)
+main2Scroll.Position = UDim2.new(0.05, 0, 0.2, 0)
+main2Scroll.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
+main2Scroll.BackgroundTransparency = 0.1
+main2Scroll.BorderSizePixel = 0
+main2Scroll.ScrollBarThickness = 6
+main2Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+main2Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+main2Scroll.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+main2Scroll.Parent = main2Frame
+
+local main2ScrollCorner = Instance.new("UICorner", main2Scroll)
+main2ScrollCorner.CornerRadius = UDim.new(0, 10)
+
+--// UIListLayout for Scrolling Frame
+local main2ListLayout = Instance.new("UIListLayout")
+main2ListLayout.Padding = UDim.new(0, 8)
+main2ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+main2ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+main2ListLayout.Parent = main2Scroll
+
+--// Close Main2 Button
+local closeMain2Btn = Instance.new("TextButton")
+closeMain2Btn.Size = UDim2.new(0, 25, 0, 25)
+closeMain2Btn.Position = UDim2.new(0.95, -25, 0.02, 0)
+closeMain2Btn.Text = "X"
+closeMain2Btn.Font = Enum.Font.GothamBold
+closeMain2Btn.TextSize = 14
+closeMain2Btn.TextColor3 = Color3.new(1, 1, 1)
+closeMain2Btn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+closeMain2Btn.Parent = main2Frame
+
+local closeMain2Corner = Instance.new("UICorner", closeMain2Btn)
+closeMain2Corner.CornerRadius = UDim.new(0, 6)
+
+--//     Main2
+local function toggleMain2(show)
+    if show then
+        main2Frame.Visible = true
+        main2Frame.Position = UDim2.new(0.5, -175, 1.5, 0) --   
+        
+        local tween = TweenService:Create(
+            main2Frame,
+            TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+            {Position = UDim2.new(0.5, -175, 0.5, -150)}
+        )
+        tween:Play()
+        
+        showMain2Btn.Text = "Hide Main2"
+        showMain2Btn.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+    else
+        local tween = TweenService:Create(
+            main2Frame,
+            TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+            {Position = UDim2.new(0.5, -175, 1.5, 0)}
+        )
+        tween:Play()
+        
+        wait(0.5)
+        main2Frame.Visible = false
+        
+        showMain2Btn.Text = "Show Main2"
+        showMain2Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+    end
+end
+
+--// Event Listeners
+local main2Visible = false
+
+showMain2Btn.MouseButton1Click:Connect(function()
+    main2Visible = not main2Visible
+    toggleMain2(main2Visible)
+end)
+
+--//  99 Nights Script Vape Button   Main2
+local nightsScriptBtn = Instance.new("TextButton")
+nightsScriptBtn.Size = UDim2.new(0.85, 0, 0, 35)
+nightsScriptBtn.Position = UDim2.new(0.075, 0, 0, 0)
+nightsScriptBtn.Text = "99 Nights Script Vape"
+nightsScriptBtn.Font = Enum.Font.GothamBold
+nightsScriptBtn.TextSize = 12
+nightsScriptBtn.TextColor3 = Color3.new(1, 1, 1)
+nightsScriptBtn.BackgroundColor3 = Color3.fromRGB(0, 100,200) --  
+nightsScriptBtn.LayoutOrder = 1
+nightsScriptBtn.Parent = main2Scroll
+
+local nightsScriptCorner = Instance.new("UICorner", nightsScriptBtn)
+nightsScriptCorner.CornerRadius = UDim.new(0, 8)
+
+--//  99 Nights Script Vape
+nightsScriptBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
+    print("99 Nights Script Vape loaded successfully!")
+end)
+
+--//  Yunus Hub Button   Main2
+local yunusHubBtn = Instance.new("TextButton")
+yunusHubBtn.Size = UDim2.new(0.85, 0, 0, 35)
+yunusHubBtn.Position = UDim2.new(0.075, 0, 0, 40)
+yunusHubBtn.Text = "Yunus Hub"
+yunusHubBtn.Font = Enum.Font.GothamBold
+yunusHubBtn.TextSize = 12
+yunusHubBtn.TextColor3 = Color3.new(1, 1, 1)
+yunusHubBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200) --  
+yunusHubBtn.LayoutOrder = 2
+yunusHubBtn.Parent = main2Scroll
+
+local yunusHubCorner = Instance.new("UICorner", yunusHubBtn)
+yunusHubCorner.CornerRadius = UDim.new(0, 8)
+
+--//  Yunus Hub
+yunusHubBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/yunus154524/YunusLo1545-HUB/refs/heads/main/YunusLo1545%20HUB"))()
+    print("Yunus Hub loaded successfully!")
+end)
+
+closeMain2Btn.MouseButton1Click:Connect(function()
+    main2Visible = false
+    toggleMain2(false)
+end)
+
+--//  TP Tool Button   Main2
+local tpToolBtn = Instance.new("TextButton")
+tpToolBtn.Size = UDim2.new(0.85, 0, 0, 35)
+tpToolBtn.Position = UDim2.new(0.075, 0, 0, 80)
+tpToolBtn.Text = "TP Tool: OFF"
+tpToolBtn.Font = Enum.Font.GothamBold
+tpToolBtn.TextSize = 12
+tpToolBtn.TextColor3 = Color3.new(1, 1, 1)
+tpToolBtn.BackgroundColor3 = Color3.fromRGB(0, 100,200)
+tpToolBtn.LayoutOrder = 3
+tpToolBtn.Parent = main2Scroll
+
+local tpToolCorner = Instance.new("UICorner", tpToolBtn)
+tpToolCorner.CornerRadius = UDim.new(0, 8)
+
+--// TP Tool Variables
+local tpToolActive = false
+
+--//   Tool
+local function createTpTool()
+    --  tool 
+    local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+    local character = game.Players.LocalPlayer.Character
+    
+    if backpack then
+        local oldTool = backpack:FindFirstChild("TPTool")
+        if oldTool then
+            oldTool:Destroy()
+        end
+    end
+    
+    if character then
+        local oldTool = character:FindFirstChild("TPTool")
+        if oldTool then
+            oldTool:Destroy()
+        end
+    end
+    
+    --  Tool
+    local tool = Instance.new("Tool")
+    tool.Name = "TPTool"
+    tool.RequiresHandle = false
+    tool.ToolTip = "Click anywhere to teleport"
+    
+    --  
+    local handle = Instance.new("Part")
+    handle.Name = "Handle"
+    handle.Size = Vector3.new(0.5, 0.5, 0.5)
+    handle.Transparency = 0.5
+    handle.BrickColor = BrickColor.new("Bright blue")
+    handle.Material = Enum.Material.Neon
+    handle.Parent = tool
+    
+    --  
+    local billboard = Instance.new("BillboardGui")
+    billboard.Size = UDim2.new(4, 0, 4, 0)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.Adornee = handle
+    billboard.Parent = handle
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = "TP"
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.Parent = billboard
+    
+    --  
+    tool.Activated:Connect(function()
+        if tpToolActive then
+            --   
+            local player = game.Players.LocalPlayer
+            local mouse = player:GetMouse()
+            local targetPosition = mouse.Hit.Position
+            
+            --  
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    --  
+                    humanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 3, 0))
+                    
+                    --   
+                    local effectPart = Instance.new("Part")
+                    effectPart.Size = Vector3.new(3, 0.2, 3)
+                    effectPart.Position = targetPosition + Vector3.new(0, 0.1, 0)
+                    effectPart.Anchored = true
+                    effectPart.CanCollide = false
+                    effectPart.Material = Enum.Material.Neon
+                    effectPart.BrickColor = BrickColor.new("Bright green")
+                    effectPart.Parent = workspace
+                    
+                    game:GetService("Debris"):AddItem(effectPart, 2)
+                    
+                    print(" Teleported to: " .. tostring(targetPosition))
+                end
+            end
+        end
+    end)
+    
+    tool.Parent = game.Players.LocalPlayer.Backpack
+    
+    return tool
+end
+
+--//  TP Tool
+tpToolBtn.MouseButton1Click:Connect(function()
+    tpToolActive = not tpToolActive
+    
+    if tpToolActive then
+        tpToolBtn.Text = "TP Tool: ON"
+        tpToolBtn.BackgroundColor3 = Color3.fromRGB(0,100,200) -- 
+        
+        --   
+        if not game.Players.LocalPlayer.Character then
+            game.Players.LocalPlayer.CharacterAdded:Wait()
+        end
+        
+        createTpTool()
+        print(" TP Tool activated! Click anywhere to teleport.")
+        
+    else
+        tpToolBtn.Text = "TP Tool: OFF"
+        tpToolBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200) -- 
+        
+        --  tool
+        local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+        local character = game.Players.LocalPlayer.Character
+        
+        if backpack then
+            local tool = backpack:FindFirstChild("TPTool")
+            if tool then
+                tool:Destroy()
+            end
+        end
+        
+        if character then
+            local tool = character:FindFirstChild("TPTool")
+            if tool then
+                tool:Destroy()
+            end
+        end
+        
+        print(" TP Tool deactivated!")
+    end
+end)
+
+--// Flashlight Tool Button (ID 11242492137)
+local flashlightBtn = Instance.new("TextButton")
+flashlightBtn.Size = UDim2.new(0.85, 0, 0, 35)
+flashlightBtn.Position = UDim2.new(0.075, 0, 0, 0) -- Position      LayoutOrder 
+flashlightBtn.Text = "Flashlight Tool"
+flashlightBtn.Font = Enum.Font.GothamBold
+flashlightBtn.TextSize = 12
+flashlightBtn.TextColor3 = Color3.new(1, 1, 1)
+flashlightBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+flashlightBtn.LayoutOrder = 2  --        
+flashlightBtn.Parent = main2Scroll
+
+local flashlightCorner = Instance.new("UICorner", flashlightBtn)
+flashlightCorner.CornerRadius = UDim.new(0, 8)
+
+--// On click: try to load the tool and put it in the player's Backpack
+flashlightBtn.MouseButton1Click:Connect(function()
+    --     
+    local success, asset = pcall(function()
+        return game:GetObjects("rbxassetid://11242492137")[1]
+    end)
+    
+    if success and asset then
+        --     Backpack 
+        local ok, err = pcall(function()
+            asset.Parent = player:FindFirstChild("Backpack") or player:WaitForChild("Backpack")
+        end)
+        if ok then
+            --   (     print)
+            print("Flashlight tool added to Backpack.")
+        else
+            warn("Could not parent the flashlight tool to Backpack:", err)
+        end
+    else
+        warn("Failed to get flashlight asset (ID 11242492137).")
+    end
+end)
+
+--//  - (Spawn / Clear)
+local dualBtn = Instance.new("Frame")
+dualBtn.Size = UDim2.new(0.85, 0, 0, 35)
+dualBtn.Position = UDim2.new(0.075, 0, 0, 0)
+dualBtn.BackgroundTransparency = 1
+dualBtn.LayoutOrder = 3
+dualBtn.Parent = main2Scroll --  mainframe2
+
+--  
+local spawned67 = {}
+
+-- Spawn  ()
+local spawnPart = Instance.new("TextButton")
+spawnPart.Size = UDim2.new(0.7, 0, 1, 0)
+spawnPart.Position = UDim2.new(0, 0, 0, 0)
+spawnPart.Text = "Spawn 67"
+spawnPart.Font = Enum.Font.GothamBold
+spawnPart.TextSize = 12
+spawnPart.TextColor3 = Color3.new(1, 1, 1)
+spawnPart.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+spawnPart.Parent = dualBtn
+
+local spawnCorner = Instance.new("UICorner", spawnPart)
+spawnCorner.CornerRadius = UDim.new(0, 8)
+
+-- Clear  ()
+local clearPart = Instance.new("TextButton")
+clearPart.Size = UDim2.new(0.3, 0, 1, 0)
+clearPart.Position = UDim2.new(0.7, 0, 0, 0)
+clearPart.Text = "Clear"
+clearPart.Font = Enum.Font.GothamBold
+clearPart.TextSize = 12
+clearPart.TextColor3 = Color3.new(1, 1, 1)
+clearPart.BackgroundColor3 = Color3.fromRGB(0, 100,200)
+clearPart.Parent = dualBtn
+
+local clearCorner = Instance.new("UICorner", clearPart)
+clearCorner.CornerRadius = UDim.new(0, 8)
+
+--  Spawn 
+spawnPart.MouseButton1Click:Connect(function()
+	local success, model = pcall(function()
+		return game:GetObjects("rbxassetid://112586636995159")[1]
+	end)
+
+	if success and model then
+		local char = player.Character or player.CharacterAdded:Wait()
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			model.Parent = workspace
+			model:MoveTo(hrp.Position + Vector3.new(3, 0, 0))
+			table.insert(spawned67, model)
+			print(" Spawned model 67 next to player.")
+		end
+	else
+		warn(" Failed to load model 112586636995159")
+	end
+end)
+
+--  Clear 
+clearPart.MouseButton1Click:Connect(function()
+	for _, m in pairs(spawned67) do
+		if m and m.Parent then
+			m:Destroy()
+		end
+	end
+	table.clear(spawned67)
+	print(" Cleared all spawned 67 models.")
+end)
+
+--// Anti Void Button  Main2
+local antiVoidBtn = Instance.new("TextButton")
+antiVoidBtn.Size = UDim2.new(0.85, 0, 0, 35)
+antiVoidBtn.Position = UDim2.new(0.075, 0, 0, 0)
+antiVoidBtn.Text = "Anti Void: OFF"
+antiVoidBtn.Font = Enum.Font.GothamBold
+antiVoidBtn.TextSize = 12
+antiVoidBtn.TextColor3 = Color3.new(1, 1, 1)
+antiVoidBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+antiVoidBtn.LayoutOrder = 5
+antiVoidBtn.Parent = main2Scroll
+
+local antiVoidCorner = Instance.new("UICorner", antiVoidBtn)
+antiVoidCorner.CornerRadius = UDim.new(0, 8)
+
+--//  Anti Void
+local antiVoidActive = false
+local antiVoidConnection = nil
+local voidYLevel = -100 --  Y   Void
+
+--//  Anti Void
+local function startAntiVoid()
+    local player = game.Players.LocalPlayer
+    
+    if antiVoidConnection then
+        antiVoidConnection:Disconnect()
+    end
+    
+    antiVoidConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not antiVoidActive then return end
+        
+        local character = player.Character
+        if not character then return end
+        
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if not humanoidRootPart then return end
+        
+        --      Void (Y < voidYLevel)
+        if humanoidRootPart.Position.Y < voidYLevel then
+            --    Spawn
+            local spawnLocation = player:FindFirstChild("RespawnLocation")
+            if spawnLocation then
+                humanoidRootPart.CFrame = spawnLocation.CFrame + Vector3.new(0, 5, 0)
+            else
+                --   spawn     map
+                humanoidRootPart.CFrame = CFrame.new(0, 50, 0)
+            end
+            
+            print(" Anti Void:    Void!")
+        end
+    end)
+end
+
+--//   Anti Void
+antiVoidBtn.MouseButton1Click:Connect(function()
+    antiVoidActive = not antiVoidActive
+    
+    if antiVoidActive then
+        antiVoidBtn.Text = "Anti Void: ON"
+        antiVoidBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+        startAntiVoid()
+        print(" Anti Void !")
+    else
+        antiVoidBtn.Text = "Anti Void: OFF"
+        antiVoidBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+        
+        if antiVoidConnection then
+            antiVoidConnection:Disconnect()
+            antiVoidConnection = nil
+        end
+        print(" Anti Void !")
+    end
+end)
+
+--//      Spawn
+local function findSpawnLocation()
+    local player = game.Players.LocalPlayer
+    
+    --   spawn 
+    local spawn = workspace:FindFirstChild("SpawnLocation") 
+                or workspace:FindFirstChild("Spawn")
+                or workspace:FindFirstChild("SpawnPoint")
+    
+    if spawn then
+        player:SetAttribute("CustomSpawn", spawn.Position)
+        print("  Spawn : " .. tostring(spawn.Position))
+    else
+        --   spawn     
+        player:SetAttribute("CustomSpawn", Vector3.new(0, 100, 0))
+        print("  Spawn    ")
+    end
+end
+
+--//     
+local function setupCharacterProtection()
+    local player = game.Players.LocalPlayer
+    
+    player.CharacterAdded:Connect(function(character)
+        if antiVoidActive then
+            wait(1) --      
+            findSpawnLocation()
+        end
+    end)
+end
+
+--//  
+setupCharacterProtection()
+findSpawnLocation()
+
+--// Bring Part Button  Main2
+local bringPartBtn = Instance.new("TextButton")
+bringPartBtn.Size = UDim2.new(0.85, 0, 0, 35)
+bringPartBtn.Position = UDim2.new(0.075, 0, 0, 0)
+bringPartBtn.Text = "Fe Troling gui"
+bringPartBtn.Font = Enum.Font.GothamBold
+bringPartBtn.TextSize = 12
+bringPartBtn.TextColor3 = Color3.new(1, 1, 1)
+bringPartBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200) --  
+bringPartBtn.LayoutOrder = 6
+bringPartBtn.Parent = main2Scroll
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = bringPartBtn
+
+bringPartBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+local bringPartCorner = Instance.new("UICorner", bringPartBtn)
+bringPartCorner.CornerRadius = UDim.new(0, 8)
+
+--//  Bring Part
+bringPartBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/yofriendfromschool1/Sky-Hub/main/FE%20Trolling%20GUI.luau"))()
+    print("Bring Part GUI loaded successfully!")
+end)
+
+--// Dex Button
+local dexBtn = Instance.new("TextButton")
+dexBtn.Size = UDim2.new(0, 100, 0, 20)
+dexBtn.Position = UDim2.new(0, 108, 0, 99) --   ColorGUI Button
+dexBtn.Text = "Dex"
+dexBtn.Font = Enum.Font.GothamBold
+dexBtn.TextSize = 14
+dexBtn.TextColor3 = Color3.new(1, 1, 1)
+dexBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
+dexBtn.Parent = frame
+
+local dexCorner = Instance.new("UICorner", dexBtn)
+dexCorner.CornerRadius = UDim.new(0, 10)
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = dexBtn
+
+dexBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+--//   Dex
+dexBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GameProber-17244"))()
+    print("Dex loaded successfully!")
+end)
+
+--//  Loading System Connected to Main2 Show/Hide 
+local TweenService = game:GetService("TweenService")
+
+-- function to create loading screen
+local function createMain2Loading()
+	-- delete old if exists
+	local old = main2Frame:FindFirstChild("LoadingOverlay")
+	if old then old:Destroy() end
+
+	--// Background (blocking layer)
+	local overlay = Instance.new("ImageButton")
+	overlay.Name = "LoadingOverlay"
+	overlay.Size = UDim2.new(1, 0, 1, 0)
+	overlay.BackgroundTransparency = 1
+	overlay.Image = "rbxassetid://8597406752" -- TextureId
+	overlay.ScaleType = Enum.ScaleType.Tile
+	overlay.ZIndex = 999
+	overlay.Active = true
+	overlay.Modal = true -- block clicks
+	overlay.AutoButtonColor = false
+	overlay.Selectable = false
+	overlay.Parent = main2Frame
+
+	local corner = Instance.new("UICorner", overlay)
+	corner.CornerRadius = UDim.new(0, 15)
+
+	--// Logo Icon
+	local icon = Instance.new("ImageLabel")
+	icon.Size = UDim2.new(0, 70, 0, 70)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.Position = UDim2.new(0.5, 0, 0.45, 0)
+	icon.BackgroundTransparency = 1
+	icon.Image = "rbxassetid://8597406765"
+	icon.ZIndex = 1000
+	icon.Parent = overlay
+
+	--// Loading Text
+	local text = Instance.new("TextLabel")
+	text.Text = "Loading..."
+	text.Font = Enum.Font.GothamBold
+	text.TextSize = 24
+	text.TextColor3 = Color3.fromRGB(255, 255, 255)
+	text.BackgroundTransparency = 1
+	text.AnchorPoint = Vector2.new(0.5, 0)
+	text.Position = UDim2.new(0.5, 0, 0.65, 0)
+	text.ZIndex = 1000
+	text.Parent = overlay
+
+	--// Icon spin animation
+	task.spawn(function()
+		local rotation = 0
+		while overlay and overlay.Parent and overlay.Visible do
+			rotation = (rotation + 4) % 360
+			icon.Rotation = rotation
+			task.wait(0.03)
+		end
+	end)
+
+	--// Fade out after 7 seconds
+	task.delay(3, function()
+		if not overlay or not overlay.Parent then return end
+		local fadeOut = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+		TweenService:Create(overlay, fadeOut, {ImageTransparency = 1}):Play()
+		TweenService:Create(icon, fadeOut, {ImageTransparency = 1}):Play()
+		TweenService:Create(text, fadeOut, {TextTransparency = 1}):Play()
+
+		task.wait(1.3)
+		if overlay then overlay:Destroy() end
+	end)
+end
+
+--//  connect loading to main2Frame visibility
+main2Frame:GetPropertyChangedSignal("Visible"):Connect(function()
+	if main2Frame.Visible then
+		createMain2Loading() -- show new loading every time frame opens
+	else
+		local old = main2Frame:FindFirstChild("LoadingOverlay")
+		if old then old:Destroy() end
+	end
+end)
+
+--// ShiftLock Button  Main2
+local shiftLockBtn = Instance.new("TextButton")
+shiftLockBtn.Size = UDim2.new(0.85, 0, 0, 35)
+shiftLockBtn.Position = UDim2.new(0.075, 0, 0, 0)
+shiftLockBtn.Text = "ShiftLock"
+shiftLockBtn.Font = Enum.Font.GothamBold
+shiftLockBtn.TextSize = 12
+shiftLockBtn.TextColor3 = Color3.new(1, 1, 1)
+shiftLockBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+shiftLockBtn.LayoutOrder = 7 --   Anti Void
+shiftLockBtn.Parent = main2Scroll
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = shiftLockBtn
+
+shiftLockBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+local shiftLockCorner = Instance.new("UICorner", shiftLockBtn)
+shiftLockCorner.CornerRadius = UDim.new(0, 8)
+
+--// ShiftLock Script
+shiftLockBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://pastebin.com/raw/CjNsnSDy'))()
+    print("ShiftLock loaded successfully!")
+end)
+
+--// CMD Admin Button  frame 
+local cmdAdminBtn = Instance.new("TextButton")
+cmdAdminBtn.Size = UDim2.new(0, 100, 0, 20)
+cmdAdminBtn.Position = UDim2.new(0, 108, 0, 125) --   Infinite Yield
+cmdAdminBtn.Text = "CMD Admin"
+cmdAdminBtn.Font = Enum.Font.GothamBold
+cmdAdminBtn.TextSize = 14
+cmdAdminBtn.TextColor3 = Color3.new(1, 1, 1)
+cmdAdminBtn.BackgroundColor3 = Color3.fromRGB(0, 150,100) --  
+cmdAdminBtn.Parent = frame
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = cmdAdminBtn
+
+cmdAdminBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+end)
+
+local cmdAdminCorner = Instance.new("UICorner", cmdAdminBtn)
+cmdAdminCorner.CornerRadius = UDim.new(0, 10)
+
+--// CMD Admin Script
+cmdAdminBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-CMD-33516"))()
+    print("CMD Admin loaded successfully!")
+end)
+
+--// Godmode Button in Main2
+local godmodeBtn = Instance.new("TextButton")
+godmodeBtn.Size = UDim2.new(0.85, 0, 0, 35)
+godmodeBtn.Position = UDim2.new(0.075, 0, 0, 0)
+godmodeBtn.Text = "Godmode 99 nights in the forset"
+godmodeBtn.Font = Enum.Font.GothamBold
+godmodeBtn.TextSize = 12
+godmodeBtn.TextColor3 = Color3.new(1, 1, 1)
+godmodeBtn.BackgroundColor3 = Color3.fromRGB(0, 100,200) -- سوور بۆ توانای تایبەت
+godmodeBtn.LayoutOrder = 7 -- ڕێکخستن لە ناو لیستەکە
+godmodeBtn.Parent = main2Scroll
+
+local godmodeCorner = Instance.new("UICorner", godmodeBtn)
+godmodeCorner.CornerRadius = UDim.new(0, 8)
+
+--// Godmode Script Loader
+godmodeBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ProBaconHub/DATABASE/refs/heads/main/99%20Nights%20in%20the%20Forest/Infinite%20Health.lua"))()
+    print("Godmode loaded successfully!")
+    
+    -- نمایشی ڕێنمایی بەکارهێنان
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Godmode Activated",
+        Text = "Health is now infinite!",
+        Duration = 5
+    })
+end)
+
+--// Anti AFK Button in Main2 (Loads Full Script)
+local antiAFKBtn = Instance.new("TextButton")
+antiAFKBtn.Size = UDim2.new(0.85, 0, 0, 35)
+antiAFKBtn.Position = UDim2.new(0.075, 0, 0, 0)
+antiAFKBtn.Text = "Anti AFK GUI"
+antiAFKBtn.Font = Enum.Font.GothamBold
+antiAFKBtn.TextSize = 12
+antiAFKBtn.TextColor3 = Color3.new(1, 1, 1)
+antiAFKBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+antiAFKBtn.LayoutOrder = 8
+antiAFKBtn.Parent = main2Scroll
+
+local antiAFKCorner = Instance.new("UICorner", antiAFKBtn)
+antiAFKCorner.CornerRadius = UDim.new(0, 8)
+
+--// Load Anti AFK Script
+antiAFKBtn.MouseButton1Click:Connect(function()
+    wait(0.5)
+    local ba=Instance.new("ScreenGui")
+    local ca=Instance.new("TextLabel")local da=Instance.new("Frame")
+    local _b=Instance.new("TextLabel")local ab=Instance.new("TextLabel")ba.Parent=game.CoreGui
+    ba.ZIndexBehavior=Enum.ZIndexBehavior.Sibling;ca.Parent=ba;ca.Active=true
+    ca.BackgroundColor3=Color3.new(0.176471,0.176471,0.176471)ca.Draggable=true
+    ca.Position=UDim2.new(0.698610067,0,0.098096624,0)ca.Size=UDim2.new(0,370,0,52)
+    ca.Font=Enum.Font.SourceSansSemibold;ca.Text="Anti AFK Script"ca.TextColor3=Color3.new(0,1,1)
+    ca.TextSize=22;da.Parent=ca
+    da.BackgroundColor3=Color3.new(0.196078,0.196078,0.196078)da.Position=UDim2.new(0,0,1.0192306,0)
+    da.Size=UDim2.new(0,370,0,107)_b.Parent=da
+    _b.BackgroundColor3=Color3.new(0.176471,0.176471,0.176471)_b.Position=UDim2.new(0,0,0.800455689,0)
+    _b.Size=UDim2.new(0,370,0,21)_b.Font=Enum.Font.Arial;_b.Text="پەیام afk"
+    _b.TextColor3=Color3.new(0,1,1)_b.TextSize=20;ab.Parent=da
+    ab.BackgroundColor3=Color3.new(0.176471,0.176471,0.176471)ab.Position=UDim2.new(0,0,0.158377,0)
+    ab.Size=UDim2.new(0,370,0,44)ab.Font=Enum.Font.ArialBold;ab.Text="Anit afk"
+    ab.TextColor3=Color3.new(0,1,1)ab.TextSize=20;local bb=game:service'VirtualUser'
+    game:service'Players'.LocalPlayer.Idled:connect(function()
+    bb:CaptureController()bb:ClickButton2(Vector2.new())
+    ab.Text="Roblox tried to kick u but i kicked him instead"wait(2)ab.Text="Status : Active"end)
+    
+    print("Anti AFK GUI loaded successfully!")
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Anti AFK",
+        Text = "AFK GUI activated successfully!",
+        Duration = 5
+    })
+end)
+
+--// Anti Fling Button in Main2
+local antiFlingBtn = Instance.new("TextButton")
+antiFlingBtn.Size = UDim2.new(0.85, 0, 0, 35)
+antiFlingBtn.Position = UDim2.new(0.075, 0, 0, 0)
+antiFlingBtn.Text = "Anti Fling"
+antiFlingBtn.Font = Enum.Font.GothamBold
+antiFlingBtn.TextSize = 12
+antiFlingBtn.TextColor3 = Color3.new(1, 1, 1)
+antiFlingBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200) -- ڕەنگی پەمەیی بۆ توانای تایبەت
+antiFlingBtn.LayoutOrder = 9 -- دوای Anti AFK
+antiFlingBtn.Parent = main2Scroll
+
+local antiFlingCorner = Instance.new("UICorner", antiFlingBtn)
+antiFlingCorner.CornerRadius = UDim.new(0, 8)
+
+--// Load Anti Fling Script
+antiFlingBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/Linux6699/DaHubRevival/main/AntiFling.lua'))()
+    print("Anti Fling loaded successfully!")
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Anti Fling",
+        Text = "Fling protection activated!",
+        Duration = 5
+    })
+end)
+
+--// Touch Fling Button in Main2
+local touchFlingBtn = Instance.new("TextButton")
+touchFlingBtn.Size = UDim2.new(0.85, 0, 0, 35)
+touchFlingBtn.Position = UDim2.new(0.075, 0, 0, 0)
+touchFlingBtn.Text = "Touch Fling"
+touchFlingBtn.Font = Enum.Font.GothamBold
+touchFlingBtn.TextSize = 12
+touchFlingBtn.TextColor3 = Color3.new(1, 1, 1)
+touchFlingBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200) -- ڕەنگی پرتەقاڵی بۆ توانای فڵینگ
+touchFlingBtn.LayoutOrder = 10 -- دوای Anti Fling
+touchFlingBtn.Parent = main2Scroll
+
+local touchFlingCorner = Instance.new("UICorner", touchFlingBtn)
+touchFlingCorner.CornerRadius = UDim.new(0, 8)
+
+--// Load Touch Fling Script
+touchFlingBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://pastebin.com/raw/e8KTvWr9'))()
+    print("Touch Fling loaded successfully!")
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Touch Fling",
+        Text = "Touch Fling activated! Touch players to fling them.",
+        Duration = 5
+    })
+end)
+
+--// Old Dex Button in Main2
+local oldDexBtn = Instance.new("TextButton")
+oldDexBtn.Size = UDim2.new(0.85, 0, 0, 35)
+oldDexBtn.Position = UDim2.new(0.075, 0, 0, 0)
+oldDexBtn.Text = "Old Dex"
+oldDexBtn.Font = Enum.Font.GothamBold
+oldDexBtn.TextSize = 12
+oldDexBtn.TextColor3 = Color3.new(1, 1, 1)
+oldDexBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+oldDexBtn.LayoutOrder = 11
+oldDexBtn.Parent = main2Scroll
+
+local oldDexCorner = Instance.new("UICorner", oldDexBtn)
+oldDexCorner.CornerRadius = UDim.new(0, 8)
+
+--// Load Old Dex Script
+oldDexBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Mobile-Dex-33363"))()
+    print("Old Dex loaded successfully!")
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Old Dex",
+        Text = "Old Dex Explorer activated!",
+        Duration = 5
+    })
+end)
+
+--// Fly Anti Chat Button in Page 1
+local flyAntiChatBtn = Instance.new("TextButton")
+flyAntiChatBtn.Size = UDim2.new(0.85, 0, 0, 35)
+flyAntiChatBtn.Position = UDim2.new(0.075, 0, 0, 0)
+flyAntiChatBtn.Text = "Fly Anti Chat💯"
+flyAntiChatBtn.Font = Enum.Font.GothamBold
+flyAntiChatBtn.TextSize = 12
+flyAntiChatBtn.TextColor3 = Color3.new(1, 1, 1)
+flyAntiChatBtn.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+flyAntiChatBtn.LayoutOrder = 12
+flyAntiChatBtn.Parent = main2Scroll
+
+local flyAntiChatCorner = Instance.new("UICorner", flyAntiChatBtn)
+flyAntiChatCorner.CornerRadius = UDim.new(0, 8)
+
+--// Load Fly Anti Chat Script
+flyAntiChatBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/JNHHGaming/Fly/refs/heads/main/Fly",true))()
+    print("Fly Anti Chat loaded successfully!")
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Fly Anti Chat💯",
+        Text = "Fly Anti Chat activated!",
+        Duration = 5
+    })
+end)
+
+
+-- Page Navigation Buttons
+local page1Btn = Instance.new("TextButton")
+page1Btn.Size = UDim2.new(0, 80, 0, 25)
+page1Btn.Position = UDim2.new(0.2, 0, 0.92, 0)
+page1Btn.Text = "Page 1"
+page1Btn.Font = Enum.Font.GothamBold
+page1Btn.TextSize = 12
+page1Btn.TextColor3 = Color3.new(1, 1, 1)
+page1Btn.BackgroundColor3 = Color3.fromRGB(0, 150, 200)
+page1Btn.Parent = main2Frame
+
+local page1Corner = Instance.new("UICorner", page1Btn)
+page1Corner.CornerRadius = UDim.new(0, 8)
+
+local page2Btn = Instance.new("TextButton")
+page2Btn.Size = UDim2.new(0, 80, 0, 25)
+page2Btn.Position = UDim2.new(0.6, 0, 0.92, 0)
+page2Btn.Text = "Page 2"
+page2Btn.Font = Enum.Font.GothamBold
+page2Btn.TextSize = 12
+page2Btn.TextColor3 = Color3.new(1, 1, 1)
+page2Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+page2Btn.Parent = main2Frame
+
+local page2Corner = Instance.new("UICorner", page2Btn)
+page2Corner.CornerRadius = UDim.new(0, 8)
+
+-- Second Page Frame
+local page2Frame = Instance.new("ScrollingFrame")
+page2Frame.Size = UDim2.new(0.9, 0, 0, 200)
+page2Frame.Position = UDim2.new(0.05, 0, 0.2, 0)
+page2Frame.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
+page2Frame.BackgroundTransparency = 0.1
+page2Frame.BorderSizePixel = 0
+page2Frame.ScrollBarThickness = 6
+page2Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+page2Frame.ScrollingDirection = Enum.ScrollingDirection.Y
+page2Frame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+page2Frame.Visible = false
+page2Frame.Parent = main2Frame
+
+local page2ScrollCorner = Instance.new("UICorner", page2Frame)
+page2ScrollCorner.CornerRadius = UDim.new(0, 10)
+
+-- UIListLayout for Page 2
+local page2ListLayout = Instance.new("UIListLayout")
+page2ListLayout.Padding = UDim.new(0, 8)
+page2ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+page2ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+page2ListLayout.Parent = page2Frame
+
+-- Page Navigation
+local currentPage = 1
+
+local function showPage(pageNumber)
+    if pageNumber == 1 then
+        main2Scroll.Visible = true
+        page2Frame.Visible = false
+        page1Btn.BackgroundColor3 = Color3.fromRGB(0, 150, 200)
+        page2Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        currentPage = 1
+    else
+        main2Scroll.Visible = false
+        page2Frame.Visible = true
+        page1Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        page2Btn.BackgroundColor3 = Color3.fromRGB(0, 150, 200)
+        currentPage = 2
+    end
+end
+
+page1Btn.MouseButton1Click:Connect(function()
+    showPage(1)
+end)
+
+page2Btn.MouseButton1Click:Connect(function()
+    showPage(2)
+end)
+
+-- Shared Click Sound
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://103866342467024"
+clickSound.Volume = 1
+clickSound.Looped = false
+clickSound.Parent = game:GetService("SoundService")
+
+local function playClick()
+    clickSound:Play()
+end
+
+-- Notification Function
+local function notify(title, text, duration)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 5
+    })
+end
+
+-- Button Creation Function
+local function createButton(parent, text, order)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.85, 0, 0, 35)
+    btn.Text = text
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 12
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    btn.LayoutOrder = order
+    btn.Parent = parent
+
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    btn.MouseButton1Click:Connect(playClick)
+    return btn
+end
+
+-- Page 2 Buttons
+local buttonsData = {
+    {name = "c00lkid gui", order = 2, script = "https://pastebin.com/raw/14EU4i8n", notifyText = "c00lkid GUI activated successfully!"},
+    {name = "Fe cat", order = 3, script = "https://pastebin.com/raw/Y1MkBRn3", notifyText = "Fe cat script activated!"},
+    {name = "Shardar", order = 4, script = "https://raw.githubusercontent.com/randomstring0/pshade-ultimate/refs/heads/main/src/cd.lua", notifyText = "Shardar script activated!"},
+    {name = "Korblox & Headless", order = 5, script = "https://raw.githubusercontent.com/khen791/script-khen/refs/heads/main/KorbloxAndHeadless.txt", notifyText = "Character customization loaded!", setup = function()
+        getgenv().Setting = {
+            ["Body"] = {
+                ["Korblox"] = true,
+                ["Headless"] = false
+            }
+        }
+    end}
+}
+
+for _, buttonInfo in ipairs(buttonsData) do
+    local btn = createButton(page2Frame, buttonInfo.name, buttonInfo.order)
+    btn.MouseButton1Click:Connect(function()
+        if buttonInfo.setup then buttonInfo.setup() end
+        loadstring(game:HttpGet(buttonInfo.script, true))()
+        print(buttonInfo.name .. " loaded successfully!")
+        notify(buttonInfo.name, buttonInfo.notifyText, 5)
+    end)
+end
+
+-- Loop Reset Button
+local loopResetBtn = createButton(page2Frame, "Loop Reset: OFF", 6)
+loopResetBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+
+local loopResetActive = false
+local resetInterval = 1
+
+loopResetBtn.MouseButton1Click:Connect(function()
+    loopResetActive = not loopResetActive
+
+    if loopResetActive then
+        loopResetBtn.Text = "Loop Reset: ON"
+        loopResetBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+        print("Loop Reset enabled!")
+        notify("Loop Reset", "Enabled! Character will reset continuously.", 5)
+
+        task.spawn(function()
+            while loopResetActive do
+                task.wait(resetInterval)
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                if character then
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then humanoid.Health = 0 end
+                end
+            end
+        end)
+    else
+        loopResetBtn.Text = "Loop Reset: OFF"
+        loopResetBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        print("Loop Reset disabled.")
+        notify("Loop Reset", "Disabled.", 3)
+    end
+end)
+
+-- Additional Page 2 Buttons
+local additionalButtons = {
+    {name = "Fe Invisible Fly", order = 1, scripts = {
+        "https://raw.githubusercontent.com/396abc/Script/refs/heads/main/MobileFly.lua",
+        "https://raw.githubusercontent.com/396abc/Script/refs/heads/main/FlyR15.lua"
+    }},
+    {name = "Murderer vs Sheriffs Duels Autofarm", order = 2, script = "https://raw.githubusercontent.com/TheRealAvrwm/Projects/refs/heads/main/Autofarm%20Beta"},
+    {name = "DaimondFarm 99 Nights in the Forest", order = 3, script = "https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FNDayFarm.lua"},
+    {name = "Fly GUI", order = 4, script = "https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"}
+}
+
+for _, btnInfo in ipairs(additionalButtons) do
+    local btn = createButton(page2Frame, btnInfo.name, btnInfo.order)
+    btn.MouseButton1Click:Connect(function()
+        if btnInfo.scripts then
+            for _, scriptUrl in ipairs(btnInfo.scripts) do
+                loadstring(game:HttpGet(scriptUrl))()
+            end
+        else
+            loadstring(game:HttpGet(btnInfo.script))()
+        end
+        print(btnInfo.name .. " loaded successfully!")
+        notify(btnInfo.name, btnInfo.name .. " activated!", 5)
+    end)
+end
+
+-- Button Hitbox Script
+local hitboxBtn = createButton(page2Frame, "Button Hitbox", 7)
+hitboxBtn.MouseButton1Click:Connect(function()
+    playClick()
+    loadstring(game:HttpGet("https://pastefy.app/ItfO0tdg/raw"))()
+    print("Button Hitbox loaded successfully!")
+    notify("Button Hitbox", "Button Hitbox script activated!", 5)
+end)
+
+--// TpWalk Button in Page 2
+local tpWalkBtn = createButton(page2Frame, "TpWalk", 8)
+tpWalkBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+
+tpWalkBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Tpwalk-47075"))()
+    print("TpWalk loaded successfully!")
+    notify("TpWalk", "TpWalk script activated!", 5)
+end)
+
+--// MM2 Button in Page 2
+local mm2Btn = createButton(page2Frame, "MM2", 9)
+mm2Btn.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+
+mm2Btn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://globalexp.xyz/"))()
+    print("MM2 script loaded successfully!")
+    notify("MM2", "MM2 script activated!", 5)
+end)
+
+--// Animation GUI Button in Page 2
+local animationGuiBtn = createButton(page2Frame, "Animation GUI", 10)
+animationGuiBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 200)
+
+animationGuiBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/1nJD7PkH",true))()
+    print("Animation GUI loaded successfully!")
+    notify("Animation GUI", "Animation GUI activated!", 5)
+end)
+
+--// Emote Button in Page 2
+local emoteBtn = createButton(page2Frame, "Emotemark", 11)
+emoteBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+
+emoteBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGetAsync("https://mark-hub-h2g9.onrender.com/raw/Fe%20All%20Emotes.lua=446d7afc"))()
+    print("Emote script loaded successfully!")
+    notify("Emote", "All Emotes activated!", 5)
+end)
+
+-- ESP GUI Button
+local espGuiBtn = Instance.new("TextButton")
+espGuiBtn.Size = UDim2.new(0, 100, 0, 20)
+espGuiBtn.Position = UDim2.new(0, 108, 0, 150)
+espGuiBtn.Text = "ESP GUI"
+espGuiBtn.Font = Enum.Font.GothamBold
+espGuiBtn.TextSize = 14
+espGuiBtn.TextColor3 = Color3.new(1, 1, 1)
+espGuiBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
+espGuiBtn.Parent = frame
+
+Instance.new("UICorner", espGuiBtn).CornerRadius = UDim.new(0, 10)
+
+local espClickSound = Instance.new("Sound")
+espClickSound.SoundId = "rbxassetid://103866342467024"
+espClickSound.Volume = 1
+espClickSound.Looped = false
+espClickSound.Parent = espGuiBtn
+
+-- ESP GUI System
+local espFrame
+
+espGuiBtn.MouseButton1Click:Connect(function()
+    espClickSound:Play()
+    
+    if espFrame then
+        espFrame.Visible = not espFrame.Visible
+        return
+    end
+
+    if not game:IsLoaded() then game.Loaded:Wait() end
+
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer
+    local Camera = workspace.CurrentCamera
+    local RunService = game:GetService("RunService")
+    local UserInputService = game:GetService("UserInputService")
+
+    local settings = {
+        Enabled = true,
+        ShowNames = true,
+        ShowOutline = true,
+        ShowFill = false,
+        ShowLines = false,
+        TeamColor = false,
+        Font = 2
+    }
+
+    local ESPCache = {}
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = game.CoreGui
+    screenGui.Name = "ESPConfig"
+
+    espFrame = Instance.new("Frame")
+    espFrame.Size = UDim2.new(0, 200, 0, 250)
+    espFrame.Position = UDim2.new(0.8, 0, 0.5, -110)
+    espFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    espFrame.BorderSizePixel = 0
+    espFrame.Active = true
+    espFrame.Draggable = true
+    espFrame.Parent = screenGui
+
+    local dragHandle = Instance.new("TextLabel")
+    dragHandle.Size = UDim2.new(1, 0, 0, 20)
+    dragHandle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    dragHandle.Text = "ESP Settings (Drag)"
+    dragHandle.TextColor3 = Color3.new(1, 1, 1)
+    dragHandle.Font = Enum.Font.Gotham
+    dragHandle.TextSize = 12
+    dragHandle.Parent = espFrame
+
+    local instructions = Instance.new("TextLabel")
+    instructions.Size = UDim2.new(1, -10, 0, 30)
+    instructions.Position = UDim2.new(0, 5, 1, -35)
+    instructions.BackgroundTransparency = 1
+    instructions.Text = "Press K to toggle\nDrag top bar to move"
+    instructions.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+    instructions.Font = Enum.Font.Gotham
+    instructions.TextSize = 12
+    instructions.TextWrapped = true
+    instructions.Parent = espFrame
+
+    local function CreateToggle(text, ypos, flag)
+        local toggleFrame = Instance.new("Frame")
+        toggleFrame.Size = UDim2.new(1, 0, 0, 30)
+        toggleFrame.Position = UDim2.new(0, 0, 0, ypos)
+        toggleFrame.BackgroundTransparency = 1
+        toggleFrame.Parent = espFrame
+
+        local toggleButton = Instance.new("TextButton")
+        toggleButton.Size = UDim2.new(0, 120, 0, 25)
+        toggleButton.Position = UDim2.new(0, 10, 0, 2)
+        toggleButton.Text = text
+        toggleButton.TextColor3 = Color3.new(1, 1, 1)
+        toggleButton.Font = Enum.Font.Gotham
+        toggleButton.TextSize = 14
+        toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        toggleButton.BorderSizePixel = 0
+        toggleButton.Parent = toggleFrame
+
+        local stateIndicator = Instance.new("Frame")
+        stateIndicator.Size = UDim2.new(0, 20, 0, 20)
+        stateIndicator.Position = UDim2.new(1, -30, 0, 5)
+        stateIndicator.BackgroundColor3 = settings[flag] and Color3.new(0,1,0) or Color3.new(0.2,0.2,0.2)
+        stateIndicator.BorderSizePixel = 0
+        stateIndicator.Parent = toggleFrame
+
+        toggleButton.MouseButton1Click:Connect(function()
+            settings[flag] = not settings[flag]
+            stateIndicator.BackgroundColor3 = settings[flag] and Color3.new(0, 1, 0) or Color3.new(0.2, 0.2, 0.2)
+            UpdateAllESP()
+        end)
+    end
+
+    CreateToggle("Enable ESP", 25, "Enabled")
+    CreateToggle("Show Names", 55, "ShowNames")
+    CreateToggle("Show Outline", 85, "ShowOutline")
+    CreateToggle("Show Fill", 115, "ShowFill")
+    CreateToggle("Show Lines", 145, "ShowLines")
+    CreateToggle("Team Colors", 175, "TeamColor")
+
+    local function CreateESP(player)
+        if ESPCache[player] then return end
+        
+        local esp = {
+            Highlight = Instance.new("Highlight"),
+            NameLabel = Drawing.new("Text"),
+            Line = Drawing.new("Line"),
+            Connection = nil
+        }
+        
+        esp.Highlight.FillTransparency = 1
+        esp.Highlight.OutlineTransparency = 1
+        esp.Highlight.Parent = player.Character or player.CharacterAdded:Wait()
+        
+        esp.NameLabel.Visible = false
+        esp.NameLabel.Center = true
+        esp.NameLabel.Outline = true
+        esp.NameLabel.Font = settings.Font
+        
+        esp.Line.Visible = false
+        esp.Line.Thickness = 1
+        
+        ESPCache[player] = esp
+        
+        esp.Connection = RunService.RenderStepped:Connect(function()
+            if not player.Character then return end
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if humanoid and rootPart then
+                local headPos, headOnScreen = Camera:WorldToScreenPoint(player.Character.Head.Position)
+                local rootPos, rootOnScreen = Camera:WorldToViewportPoint(rootPart.Position)
+                
+                esp.Highlight.Enabled = settings.Enabled
+                esp.Highlight.FillTransparency = settings.ShowFill and 0.5 or 1
+                esp.Highlight.OutlineTransparency = settings.ShowOutline and 0 or 1
+                
+                local color = settings.TeamColor and player.TeamColor.Color or Color3.fromHSV(
+                    math.clamp((rootPart.Position - Camera.CFrame.Position).Magnitude / 500, 0, 1),
+                    0.75,
+                    1
+                )
+                esp.Highlight.FillColor = color
+                esp.Highlight.OutlineColor = color
+                
+                esp.NameLabel.Visible = settings.Enabled and settings.ShowNames and headOnScreen
+                if esp.NameLabel.Visible then
+                    esp.NameLabel.Position = Vector2.new(headPos.X, headPos.Y + 30)
+                    esp.NameLabel.Text = player.Name
+                    esp.NameLabel.Color = color
+                    esp.NameLabel.Size = 18
+                end
+                
+                local lineVisible = settings.Enabled and settings.ShowLines and rootPos.Z > 0
+                esp.Line.Visible = lineVisible
+                if lineVisible then
+                    esp.Line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+                    esp.Line.To = Vector2.new(rootPos.X, rootPos.Y)
+                    esp.Line.Color = color
+                else
+                    esp.Line.Visible = false
+                end
+            end
+        end)
+    end
+
+    function UpdateAllESP()
+        for player, esp in pairs(ESPCache) do
+            esp.Highlight.Enabled = settings.Enabled
+            esp.NameLabel.Visible = settings.Enabled and settings.ShowNames
+            esp.Line.Visible = settings.Enabled and settings.ShowLines
+        end
+    end
+
+    Players.PlayerAdded:Connect(function(player)
+        player.CharacterAdded:Connect(function()
+            CreateESP(player)
+        end)
+        if player.Character then
+            CreateESP(player)
+        end
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+        if ESPCache[player] then
+            ESPCache[player].Connection:Disconnect()
+            ESPCache[player].Highlight:Destroy()
+            ESPCache[player].NameLabel:Remove()
+            ESPCache[player].Line:Remove()
+            ESPCache[player] = nil
+        end
+    end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Player then
+            CreateESP(player)
+        end
+    end
+
+    UserInputService.InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.K then
+            espFrame.Visible = not espFrame.Visible
+        end
+    end)
+
+    notify("ESP GUI", "ESP GUI activated! Press K to toggle settings.", 5)
+end)
+
+--// Close Button - Closes Entire GUI
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 100, 0, 20)
+closeBtn.Position = UDim2.new(0, 108, 0, 275) -- Position below Show Main2 button
+closeBtn.Text = "Close GUI"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- Red color for close button
+closeBtn.Parent = frame
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 10)
+
+-- Click sound for close button
+local closeClickSound = Instance.new("Sound")
+closeClickSound.SoundId = "rbxassetid://103866342467024"
+closeClickSound.Volume = 1
+closeClickSound.Looped = false
+closeClickSound.Parent = closeBtn
+
+-- Function to completely close the GUI
+local function closeEntireGUI()
+    playClickSound()
+    
+    -- Create fade out tween for main frame
+    local tween = TweenService:Create(
+        frame,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {BackgroundTransparency = 1, Size = UDim2.new(0, 0, 0, 0)}
+    )
+    tween:Play()
+    
+    -- Also hide the toggle button
+    local toggleTween = TweenService:Create(
+        toggleBtn,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {BackgroundTransparency = 1, TextTransparency = 1}
+    )
+    toggleTween:Play()
+    
+    -- Hide Main2 frame if visible
+    if main2Frame and main2Frame.Visible then
+        local main2Tween = TweenService:Create(
+            main2Frame,
+            TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {BackgroundTransparency = 1, Size = UDim2.new(0, 0, 0, 0)}
+        )
+        main2Tween:Play()
+    end
+    
+    -- Wait for animation to complete then destroy everything
+    tween.Completed:Connect(function()
+        wait(0.2)
+        gui:Destroy()
+        print("Payam GUI v2 closed completely!")
+    end)
+end
+
+-- Connect click event
+closeBtn.MouseButton1Click:Connect(function()
+    closeClickSound:Play()
+    closeEntireGUI()
+end)
+
+--// ESP GUI System
+local espFrame
